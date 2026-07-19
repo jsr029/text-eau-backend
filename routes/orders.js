@@ -14,19 +14,23 @@ router.post('/', auth, async (req, res) => {
     await order.save();
 
     // Auto-create delivery for J+1
+    // Dans la partie création de Delivery
     const deliveryDate = new Date();
-    deliveryDate.setDate(deliveryDate.getDate() + 1);
+    deliveryDate.setDate(deliveryDate.getDate() + 1); // J+1
 
     const delivery = new Delivery({
       order: order._id,
       client: order.client,
       company: order.company,
-      items: order.items.map(item => ({ article: item.article, quantity: item.quantity })),
+      items: order.items.map(item => ({ 
+        article: item.article, 
+        quantity: item.quantity 
+      })),
       deliveryDate,
       createdBy: order.createdBy
     });
-    await delivery.save();
 
+    await delivery.save();
     res.status(201).json({ order, delivery });
   } catch (error) {
     res.status(400).json({ error: error.message });

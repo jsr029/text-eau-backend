@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const deliverySchema = new mongoose.Schema({
   deliveryNumber: { 
     type: String, 
-    required: true, 
     unique: true 
   },
   order: { 
@@ -33,7 +32,7 @@ const deliverySchema = new mongoose.Schema({
     required: true 
   },
   driver: String,
-  signature: String, // URL or base64
+  signature: String,
   notes: String,
   createdBy: { 
     type: mongoose.Schema.Types.ObjectId, 
@@ -41,11 +40,19 @@ const deliverySchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-// Auto-generate delivery number
+// Auto-generate deliveryNumber - Version robuste
 deliverySchema.pre('save', async function(next) {
-  if (!this.deliveryNumber) {
+  if (this.deliveryNumber) return next();
+
+  try {
     const count = await mongoose.model('Delivery').countDocuments();
-    this.deliveryNumber = `LIV-${new Date().getFullYear()}-${String(count + 1000).padStart(4, '0')}`;
+    const year = new Date().getFullYear();
+    const sequence = (count + 1).toString().padStart(4, '0');
+    this.deliveryNumber = `LIV-${year}-${sequence}`;
+  } catch (err) {
+    console.error('Error generating deliveryNumber:', err);
+    // Fallback
+    this.deliveryNumber = `LIV-${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`;
   }
   next();
 });
