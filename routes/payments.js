@@ -3,7 +3,7 @@ const router = express.Router();
 const Order = require('../models/Order');
 
 // PayPal simulation (replace with real SDK in production)
-router.post('https://text-eau-backend.vercel.app/create-paypal-order', async (req, res) => {
+router.post('/create-paypal-order', async (req, res) => {
   const { orderId, amount } = req.body;
   
   // In real: call PayPal API
@@ -21,7 +21,7 @@ router.post('https://text-eau-backend.vercel.app/create-paypal-order', async (re
   });
 });
 
-router.post('https://text-eau-backend.vercel.app/capture-paypal-order', async (req, res) => {
+router.post('/capture-paypal-order', async (req, res) => {
   const { orderId } = req.body;
   
   await Order.findByIdAndUpdate(orderId, { 

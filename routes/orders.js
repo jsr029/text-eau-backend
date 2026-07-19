@@ -5,7 +5,7 @@ const Delivery = require('../models/Delivery');
 const auth = require('../middleware/auth');
 
 // Create new order (all authenticated users)
-router.post('https://text-eau-backend.vercel.app/', auth, async (req, res) => {
+router.post('/', auth, async (req, res) => {
   try {
     const order = new Order({
       ...req.body,
@@ -13,7 +13,7 @@ router.post('https://text-eau-backend.vercel.app/', auth, async (req, res) => {
     });
     await order.save();
 
-    // Auto-create delivery for J+1 
+    // Auto-create delivery for J+1
     const deliveryDate = new Date();
     deliveryDate.setDate(deliveryDate.getDate() + 1);
 
@@ -34,7 +34,7 @@ router.post('https://text-eau-backend.vercel.app/', auth, async (req, res) => {
 });
 
 // Get all orders (filtered by role/company)
-router.get('https://text-eau-backend.vercel.app/', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     // TODO: Add role-based filtering
     const orders = await Order.find().sort({ createdAt: -1 });
@@ -45,7 +45,7 @@ router.get('https://text-eau-backend.vercel.app/', async (req, res) => {
 });
 
 // Get one order
-router.get('https://text-eau-backend.vercel.app/:id', async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ message: 'Order not found' });

@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-router.post('https://text-eau-backend.vercel.app/register', async (req, res) => {
+router.post('/register', async (req, res) => {
   try {
     const { name, email, password, company } = req.body;
     let user = await User.findOne({ email });
@@ -30,7 +30,7 @@ router.post('https://text-eau-backend.vercel.app/register', async (req, res) => 
   }
 });
 
-router.post('https://text-eau-backend.vercel.app/login', async (req, res) => {
+router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
