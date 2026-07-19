@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const orderSchema = new mongoose.Schema({
   orderNumber: { 
     type: String, 
-    required: true, 
     unique: true 
   },
   client: { 
@@ -17,7 +16,7 @@ const orderSchema = new mongoose.Schema({
   items: [{
     article: { type: String, required: true },
     quantity: { type: Number, required: true },
-    price: { type: Number }
+    price: { type: Number, default: 0 }
   }],
   totalAmount: { type: Number, required: true },
   status: { 
@@ -25,19 +24,20 @@ const orderSchema = new mongoose.Schema({
     enum: ['pending', 'in_progress', 'ready', 'delivered', 'cancelled'], 
     default: 'pending' 
   },
-  deliveryDate: { type: Date }, // J+1
+  deliveryDate: { type: Date },
+  paymentStatus: { type: String, default: 'unpaid' },
   createdBy: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'User' 
-  },
-  notes: String
+  }
 }, { timestamps: true });
 
-// Auto-generate order number
+// Auto-generate orderNumber BEFORE save
 orderSchema.pre('save', async function(next) {
   if (!this.orderNumber) {
-    const count = await mongoose.model('Order').countDocuments();
-    this.orderNumber = `CMD-${new Date().getFullYear()}-${String(count + 1000).padStart(4, '0')}`;
+    const count = await mongoose.model('Order').countDocuments() + 1;
+    const year = new Date().getFullYear();
+    this.orderNumber = `CMD-${year}-${count.toString().padStart(4, '0')}`;
   }
   next();
 });
