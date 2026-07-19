@@ -12,13 +12,13 @@ const superAdminOnly = (req, res, next) => {
 };
 
 // GET all users (superAdmin only)
-router.get('/', auth, superAdminOnly, async (req, res) => {
+router.get('https://text-eau-backend.vercel.app/', auth, superAdminOnly, async (req, res) => {
   const users = await User.find().select('-password');
   res.json(users);
 });
 
 // Create user
-router.post('/', auth, superAdminOnly, async (req, res) => {
+router.post('https://text-eau-backend.vercel.app/', auth, superAdminOnly, async (req, res) => {
   try {
     const user = new User(req.body);
     await user.save();
@@ -29,7 +29,7 @@ router.post('/', auth, superAdminOnly, async (req, res) => {
 });
 
 // Update role
-router.put('/:id/role', auth, superAdminOnly, async (req, res) => {
+router.put('https://text-eau-backend.vercel.app/:id/role', auth, superAdminOnly, async (req, res) => {
   try {
     const { role } = req.body;
     const user = await User.findByIdAndUpdate(req.params.id, { role }, { new: true });
