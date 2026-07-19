@@ -13,7 +13,7 @@ router.post('https://text-eau-backend.vercel.app/', auth, async (req, res) => {
     });
     await order.save();
 
-    // Auto-create delivery for J+1
+    // Auto-create delivery for J+1 
     const deliveryDate = new Date();
     deliveryDate.setDate(deliveryDate.getDate() + 1);
 
