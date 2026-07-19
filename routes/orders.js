@@ -2,61 +2,56 @@ const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order');
 const Delivery = require('../models/Delivery');
-const auth = require('../middleware/auth');
+const { auth } = require('../middleware/auth');
 
-// Create new order (all authenticated users)
+// CREATE
 router.post('/', auth, async (req, res) => {
   try {
-    const order = new Order({
-      ...req.body,
-      createdBy: req.user ? req.user.id : null // Will be set by auth middleware
-    });
+    const order = new Order(req.body);
     await order.save();
 
-    // Auto-create delivery for J+1
-    // Dans la partie création de Delivery
+    // Auto Delivery J+1
     const deliveryDate = new Date();
-    deliveryDate.setDate(deliveryDate.getDate() + 1); // J+1
+    deliveryDate.setDate(deliveryDate.getDate() + 1);
 
     const delivery = new Delivery({
       order: order._id,
       client: order.client,
       company: order.company,
-      items: order.items.map(item => ({ 
-        article: item.article, 
-        quantity: item.quantity 
-      })),
-      deliveryDate,
-      createdBy: order.createdBy
+      items: order.items,
+      deliveryDate
     });
-
     await delivery.save();
+
     res.status(201).json({ order, delivery });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
   }
 });
 
-// Get all orders (filtered by role/company)
-router.get('/', async (req, res) => {
-  try {
-    // TODO: Add role-based filtering
-    const orders = await Order.find().sort({ createdAt: -1 });
-    res.json(orders);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+// READ ALL
+router.get('/', auth, async (req, res) => {
+  const orders = await Order.find().sort({ createdAt: -1 });
+  res.json(orders);
 });
 
-// Get one order
-router.get('/:id', async (req, res) => {
-  try {
-    const order = await Order.findById(req.params.id);
-    if (!order) return res.status(404).json({ message: 'Order not found' });
-    res.json(order);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+// READ ONE
+router.get('/:id', auth, async (req, res) => {
+  const order = await Order.findById(req.params.id);
+  if (!order) return res.status(404).json({ message: 'Commande non trouvée' });
+  res.json(order);
+});
+
+// UPDATE
+router.put('/:id', auth, async (req, res) => {
+  const order = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  res.json(order);
+});
+
+// DELETE
+router.delete('/:id', auth, async (req, res) => {
+  await Order.findByIdAndDelete(req.params.id);
+  res.json({ message: 'Commande supprimée' });
 });
 
 module.exports = router;
